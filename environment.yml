@@ -1,0 +1,19 @@
+name: RL-Tutorial
+channels:
+  - defaults
+dependencies:
+  - scipy
+  - python=3.10
+  - pytorch
+  - torchvision
+  - pytest-mock=3.10.0
+  - gymnasium
+  - pip
+  - pip:
+    - stable_baselines3>=2.2.1
+    - tensorboard>=2.16.2
+    - pyyaml>=6.0.1
+    - pygame>=2.5.2
+    - tqdm>=4.66.2
+    - rich>=13.7.1
+    - "--editable=git+https://github.com/adysonmaia/sb3-plus#egg=sb3-plus"
