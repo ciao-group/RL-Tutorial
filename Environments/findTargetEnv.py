@@ -39,13 +39,15 @@ class FindTargetEnv(gym.Env):
 
     # rendering
     def render(self) -> RenderFrame | list[RenderFrame] | None:
-        self.renderer.render(agent_location=self._agent_location, new_episode=self._new_episode, targets=self._targets)
+        self.renderer.render(agent_location=self._agent_location, new_episode=self._new_episode, targets=self._targets,
+                             visited_cells_count=self._counted_positions)
 
     def _render_frame(self):
         return self.renderer.render_frame(
             agent_location=self._agent_location,
             new_episode=self._new_episode,
             targets=self._targets,
+            visited_cells_count=self._counted_positions,
         )
 
     def _render_frame_for_humans_if_needed(self):
@@ -53,6 +55,7 @@ class FindTargetEnv(gym.Env):
             agent_location=self._agent_location,
             new_episode=self._new_episode,
             targets=self._targets,
+            visited_cells_count=self._counted_positions,
         )
 
     def _count_position(self, position: tuple[int, int]):
