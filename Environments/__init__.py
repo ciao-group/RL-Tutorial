@@ -1,3 +1,4 @@
+"""
 from gymnasium.envs.registration import register
 
 register(
@@ -5,3 +6,4 @@ register(
     entry_point="Environments.findTargetEnv:FindTargetEnv",
     max_episode_steps=50,
 )
+"""
