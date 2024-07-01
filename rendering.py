@@ -36,18 +36,21 @@ class Renderer:
         agent_location,
         new_episode=False,
         targets=None,
+        visited_cells_count=None,
     ):
         """
         Renders in rgb_mode
         :param agent_location: The location of the agent in the grid world
         :param new_episode: Flag if a new episode has started. Renders a black screen between episodes
         :param targets: The targets of the grid world
+        :param visited_cells_count: Array / Matrix that counts how often a cell (position in grid) was visited by the agent (Optional parameter.)
         """
         if self.render_mode == "rgb_array":
             return self.render_frame(
                 agent_location=agent_location,
                 new_episode=new_episode,
                 targets=targets,
+                visited_cells_count=visited_cells_count
             )
 
     def render_frame_for_humans_if_needed(
@@ -55,18 +58,21 @@ class Renderer:
         agent_location,
         new_episode=False,
         targets=None,
+        visited_cells_count=None
     ):
         """
         Renders the frame if rendering_mode == "human"
         :param agent_location: The location of the agent in the grid world
         :param new_episode: Flag if a new episode has started. Renders a black screen between episodes
         :param targets: The targets that should be rendered.
+        :param visited_cells_count: / Matrix that counts how often a cell (position in grid) was visited by the agent (Optional parameter.)
         """
         if self.render_mode == "human":
             return self.render_frame(
                 agent_location,
                 new_episode=new_episode,
                 targets=targets,
+                visited_cells_count=visited_cells_count,
             )
 
     def render_frame(
@@ -74,12 +80,14 @@ class Renderer:
         agent_location,
         new_episode=False,
         targets=None,
+        visited_cells_count=None,
     ):
         """
         The actual rendering function
         :param agent_location: The location of the agent in the grid world
         :param new_episode: Flag if a new episode has started. Renders a black screen between episodes
         :param targets: The targets that should be rendered
+        :param visited_cells_count: Array / Matrix that counts how often a cell (position in grid) was visited by the agent (Optional parameter.)
         """
         space_top = 0
         window_length = window_height = self.window_size
@@ -108,6 +116,7 @@ class Renderer:
                 pix_square_size=pix_square_size,
                 agent_location=agent_location,
                 targets=targets,
+                visited_cells_count=visited_cells_count,
             )
             canvas.blit(env_grid, (0, space_top))
 
@@ -138,18 +147,42 @@ class Renderer:
         pix_square_size,
         agent_location,
         targets=None,
+        visited_cells_count=None,
     ) -> pygame.surface:
         canvas = pygame.Surface((self.window_size, self.window_size))
         canvas.fill((255, 255, 255))
 
+        visited_cells_count = {} if visited_cells_count is None else visited_cells_count
+        for position, times_visited in visited_cells_count.items():
+            # color visited cell according to times visited
+            # yellow for the first visit, then darken it linearly, darkest color is (255, 25, 0)
+            red = max(255 - 2 * (times_visited - 1), 225)
+            green = max(255 - 45 * (times_visited - 1), 25)
+            visited_cell_color = (red, green, 0)  # yellow
+            pygame.draw.rect(
+                canvas,
+                visited_cell_color,
+                pygame.Rect(
+                    pix_square_size * np.asarray(position),
+                    (pix_square_size, pix_square_size),
+                ),
+            )
+        
         if targets is None:
             targets = []
 
         # draw the targets
         for target in targets:
+            target_color_base = (
+                target.color
+                if not (
+                        np.array_equal(target.position, agent_location)
+                )
+                else (0, 255, 0)
+            )
             pygame.draw.rect(
                 canvas,
-                target.color,
+                target_color_base,
                 pygame.Rect(
                     pix_square_size * target.position,
                     (pix_square_size, pix_square_size),

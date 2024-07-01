@@ -27,6 +27,8 @@ class FindTargetEnv(gym.Env):
     def _set_up(self):
         self._agent_location = np.array([0,0])
         self._setup_targets()
+        # rendering
+        self._counted_positions = {}
         self._new_episode = True
 
     def _setup_targets(self):
@@ -52,6 +54,12 @@ class FindTargetEnv(gym.Env):
             new_episode=self._new_episode,
             targets=self._targets,
         )
+
+    def _count_position(self, position: tuple[int, int]):
+        try:
+            self._counted_positions[position] += 1
+        except:
+            self._counted_positions[position] = 1
 
     def close(self):
         if self.renderer.window is not None:
