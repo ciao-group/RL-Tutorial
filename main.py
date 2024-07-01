@@ -1,5 +1,5 @@
 import gymnasium as gym
-import Environments.findTargetEnv_final
+import Environments.findTargetEnv
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
 
@@ -39,22 +39,16 @@ def demo_trainaed_model(model_path:str):
 
 
 if __name__ == '__main__':
-    #learn_lunar_lander_PPO()
-    #demo_trainaed_model("LunarLanderModel_1e6")
 
+    # create env
 
-    env = gym.make("FindTargetEnv-v0", size=5, render_mode="rgb_array")
-    model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=5e4, progress_bar=True)
-    model.save("FindTarget_5e4")
+    # create model
 
-    env = gym.make("FindTargetEnv-v0", size=5, render_mode="human")
-    model = PPO.load("FindTarget_5e4", env)
-    vec_env = model.get_env()
-    obs = vec_env.reset()
+    # train model
 
-    for _ in range(10000):
-        action, _states = model.predict(obs, deterministic=True)
-        obs, rewards, done, info = vec_env.step(action)
-        vec_env.render("human")
+    # save model
+
+    # demo model
+
+    pass
 
