@@ -13,8 +13,22 @@ class FindTargetEnv(gym.Env):
     metadata = {"render_modes": ["human", "rgb_array"], "render_fps": 4}
 
     def __init__(self, size:int = 5, render_mode=None):
-
-
+        self.size = size
+        # define the action space
+        self.action_space = spaces.Discrete(4)
+        self.action_to_direction = {
+            0: np.array([0,1]), 
+            1: np.array([0, -1]), 
+            2: np.array([1,0]), 
+            3: np.array([-1, 0])}
+        
+        #observation space
+        observation_shape = (2,)
+        self.observation_space = spaces.Box(low=0, 
+                                            high=size-1, 
+                                            shape=observation_shape, 
+                                            dtype=integer)
+        
 
         # rendering
         self.renderer = Renderer(meta_data=self.metadata, grid_size=self.size, render_mode=render_mode)
