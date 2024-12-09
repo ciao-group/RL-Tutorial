@@ -46,12 +46,36 @@ class FindTargetEnv(gym.Env):
         self._new_episode = True
 
     def _setup_targets(self):
-        pass
+        target = tg.Target(
+            color= (255,0,0),
+            reward = 10,
+            position= np.array([2,3]),
+            velocity=0.0,
+            movement=tg.Direction(tg.DirectionType.NONE)
+        )
+        self._targets = [target]
 
+    def _get_obs(self):
+        return self._agent_location
+    
+    def _get_info(self):
+        return {
+            #"distance": np.linalg.norm(self._agent_location - self._targets[0].position)
+            "distance": 0
+        }
 
-
+    
+    def _get_new_agent_position_from_action(self, action: ActType):
+        new_pos = self._agent_location + self.action_to_direction[action]  
+        if np.any(new_pos < np.zeros((2,), dtype=int)) \
+            or np.any(new_pos > np.full((2,), fill_value=self.size-1)):
+            return self._agent_location
+        return new_pos
+        
+    
 
     # rendering
+
     def render(self) -> RenderFrame | list[RenderFrame] | None:
         self.renderer.render(agent_location=self._agent_location, new_episode=self._new_episode, targets=self._targets,
                              visited_cells_count=self._counted_positions)
