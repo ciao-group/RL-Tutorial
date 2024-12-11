@@ -16,6 +16,7 @@ class FindTargetEnv(gym.Env):
         self.size = size
         # define the action space
         self.action_space = spaces.Discrete(4)
+        # The actions are mapped to left, right, up, down
         self.action_to_direction = {
             0: np.array([0,1]), 
             1: np.array([0, -1]), 
@@ -27,8 +28,7 @@ class FindTargetEnv(gym.Env):
         self.observation_space = spaces.Box(low=0, 
                                             high=size-1, 
                                             shape=observation_shape, 
-                                            dtype=integer)
-        
+                                            dtype=int)
 
         # rendering
         self.renderer = Renderer(meta_data=self.metadata, grid_size=self.size, render_mode=render_mode)
@@ -39,13 +39,30 @@ class FindTargetEnv(gym.Env):
         )
 
     def _set_up(self):
-        self._agent_location = np.array([0,0])
+        """
+        Setup the environment
+        :return:
+        """
         self._setup_targets()
+
+        # Randomly sample the agent's location until it does not match any of the target's locations.
+        self._agent_location = self._targets[0].position
+        positions = [target.position for target in self._targets]
+        while np.any(np.all(self._agent_location == positions, axis=1)):
+            self._agent_location = self.np_random.integers(
+                0, self.size, size=2, dtype=int
+            )
+        
         # rendering
         self._counted_positions = {}
         self._new_episode = True
 
+
     def _setup_targets(self):
+        """
+        Setup the targets in the environment
+        :return:
+        """
         target = tg.Target(
             color= (255,0,0),
             reward = 10,
@@ -56,23 +73,57 @@ class FindTargetEnv(gym.Env):
         self._targets = [target]
 
     def _get_obs(self):
+        """
+        The agent's observation.
+        Must match the observation space defined in init
+        :return: The agent's observation'
+        """
         return self._agent_location
     
     def _get_info(self):
+        """
+        Info dictionary for gymnasium.
+        This is not used for the RL training
+        :return: Info dictionary
+        """
         return {
-            #"distance": np.linalg.norm(self._agent_location - self._targets[0].position)
-            "distance": 0
+            "distance": int(np.linalg.norm(self._agent_location - self._targets[0].position, ord=1))
         }
+    
+    def reset(
+        self,
+        *,
+        seed: int | None = None,
+        options: dict[str, Any] | None = None,
+    ) -> tuple[ObsType, dict[str, Any]]:
+        # your code here
 
+        self._render_frame_for_humans_if_needed()
+        
+        return obs, info
     
     def _get_new_agent_position_from_action(self, action: ActType):
-        new_pos = self._agent_location + self.action_to_direction[action]  
-        if np.any(new_pos < np.zeros((2,), dtype=int)) \
-            or np.any(new_pos > np.full((2,), fill_value=self.size-1)):
+        new_pos = self._agent_location + self.action_to_direction[action]
+        # Check if the new position is on the grid, if not return the old one
+        if np.any(new_pos < np.zeros((2,), dtype=int)) or np.any(new_pos > np.full((2,), fill_value=self.size-1)):
             return self._agent_location
         return new_pos
-        
     
+    def step(
+        self, action: ActType
+    ) -> tuple[ObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        # rendering
+        self._new_episode = False
+        self._count_position(position=(self._agent_location[0], self._agent_location[1]))
+        
+        # your code here
+
+
+
+        self._render_frame_for_humans_if_needed()
+        
+        return obs, reward, terminated, False, info
+        
 
     # rendering
 
