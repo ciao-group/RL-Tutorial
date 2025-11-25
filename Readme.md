@@ -4,7 +4,7 @@ Welcome to the Reinforcement Learning Tutorial, which is part of the lecture ser
 
 ### Prerequisites
 This project relies on *Conda*, an open source package and environment management system for Windows, Linux, and macOS. Conda allows you to install multiple versions of software packages and switching easily between them. 
-Please install Conda on the machine you intend to use for the lab. 
+>Please install Conda on the machine you intend to use for the lab. 
 
 There are two versions of Conda available, namely *Miniconda* and *Anaconda*. Anaconda provides additional functionalities, such as a GUI. However, Miniconda is absolutely sufficient for this tutorial.
 
